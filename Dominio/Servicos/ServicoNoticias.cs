@@ -1,4 +1,5 @@
-﻿using Dominio.Interfaces.InterfaceServicos;
+﻿using Dominio.Interfaces;
+using Dominio.Interfaces.InterfaceServicos;
 using Entidades.Entidades;
 using System;
 using System.Collections.Generic;
@@ -10,19 +11,42 @@ namespace Dominio.Servicos
 {
     class ServicoNoticias : IServicoNoticia
     {
-        public Task AdicionaNoticia(Noticia noticia)
+        private readonly INoticia _INoticia;
+
+        public ServicoNoticias(INoticia INoticia)
         {
-            throw new NotImplementedException();
+            _INoticia = INoticia;
+        }
+        public async Task AdicionaNoticia(Noticia noticia)
+        {
+            var validarTitulo = noticia.ValidaPropriedade(noticia.Titulo, "Titulo");
+            var validarInformacao = noticia.ValidaPropriedade(noticia.Informação, "Informacao");
+
+            if(validarInformacao && validarTitulo)
+            {
+                noticia.DataAlteracao = DateTime.Now;
+                noticia.DataCadastro = DateTime.Now;
+                noticia.Ativo = true;
+                await _INoticia.Adicionar(noticia);
+            }
         }
 
-        public Task AtualizaNoticia(Noticia noticia)
+        public async Task AtualizaNoticia(Noticia noticia)
         {
-            throw new NotImplementedException();
+            var validarTitulo = noticia.ValidaPropriedade(noticia.Titulo, "Titulo");
+            var validarInformacao = noticia.ValidaPropriedade(noticia.Informação, "Informacao");
+
+            if (validarInformacao && validarTitulo)
+            {
+                noticia.DataAlteracao = DateTime.Now;
+                noticia.Ativo = true;
+                await _INoticia.Atualizar(noticia);
+            }
         }
 
-        public Task<List<Noticia>> listarNoticiaAtiva()
+        public async Task<List<Noticia>> listarNoticiaAtiva()
         {
-            throw new NotImplementedException();
+            return await _INoticia.ListarNoticias(n => n.Ativo);
         }
     }
 }
